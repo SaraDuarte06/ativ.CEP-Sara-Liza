@@ -1,55 +1,92 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checador de cep</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Buscador de CEP</title>
+     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div class="card">
-        <h2>Checador de CEP</h2>
-    <div class="input-group">
-        <label for="cep">Digite o CEP:</label>
-        <input type="text" id="cep" placeholder="Ex:01001000" maxlength="8">
+        <h2>Buscador de CEP</h2>
+        
+        <div class="input-group">
+            <label for="cep">Digite o CEP:</label>
+            <input type="text" id="cep" placeholder="Ex: 01001000" maxlength="8">
+        </div>
+
+        <button id="btnBuscar">Buscar Endereço</button>
+
+        <div class="input-group">
+            <label for="rua">Rua:</label>
+            <input type="text" id="rua" readonly>
+        </div>
+
+        <div class="input-group">
+            <label for="bairro">Bairro:</label>
+            <input type="text" id="bairro" readonly>
+        </div>
+
+        <div class="input-group">
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" readonly>
+        </div>
+
+        <div class="input-group">
+            <label for="estado">Estado:</label>
+            <input type="text" id="estado" readonly>
+        </div>
     </div>
-    <div class="input-group">
-        <label for="rua">Rua:</label>
-        <input type="text" id="rua" readonly>
-    </div>
-    <div class="input-group">
-        <label for="bairro">Bairro:</label>
-        <input type="text" id="bairro" readonly>
-    </div>
-    <div class="input-group">
-        <label for="cidade">Cidade:</label>
-        <input type="text" id="cidade" readonly>
-    </div>
-    <div class="input-group">
-        <label for="estado">Estado:</label>
-        <input type="text" id="estado" readonlyL>
-    </div>
-    </div>
-     <script>
+
+    <script>
         const inputCep = document.getElementById('cep');
-        inputCep.addEventListener ('blue'),function(){
-        let cep = inputCep.value.replace(/\D/g,'')    
+        const btnBuscar = document.getElementById('btnBuscar');
+
+        btnBuscar.addEventListener('click', async function() {
+            let cep = inputCep.value.replace(/\D/g, ''); 
+
+            if (cep.length !== 8) {
+                alert('CEP inválido! Digite 8 números.');
+                return;
+            }
+
+            document.getElementById('rua').value = 'Carregando...';
+            document.getElementById('bairro').value = 'Carregando...';
+            document.getElementById('cidade').value = 'Carregando...';
+            document.getElementById('estado').value = 'Carregando...';
+
+            let url = `https://viacep.com.br/ws/${cep}/json/`;
+
+            try {
+                let resposta = await fetch(url);
+                let dados = await resposta.json();
+
+                if (dados.erro) {
+                    alert('CEP não encontrado!');
+                    limparCampos();
+                    return;
+                }
+
+                document.getElementById('rua').value = dados.logradouro;
+                document.getElementById('bairro').value = dados.bairro;
+                document.getElementById('cidade').value = dados.localidade;
+                document.getElementById('estado').value = dados.uf;
+
+            } catch (erro) {
+                alert('Ocorreu um erro ao buscar o CEP.');
+                console.log(erro);
+                limparCampos();
+            }
+        });
+
+        function limparCampos() {
+            document.getElementById('rua').value = '';
+            document.getElementById('bairro').value = '';
+            document.getElementById('cidade').value = '';
+            document.getElementById('estado').value = '';
         }
-        if (cep.length !== 8){
-            alert('CEP inválido! Digite 8 números.');
-            return;
-        }
-        let url = `https://viacep.com.br/ws/${cep}/json/`;
-        then(resposta => resposta.json())
-        .then(dados => {
-            if (dados.erro)
-               alert('CEP não encontrado!');
-            return;
-        })
-        document.getElementById('rua').value = dados.logradouro;
-        document.getElementById('bairro').value = dados.bairro;
-        document.getElementById('cidade').value = dados.localidade;
-        document.getElementById('estado').value = dados.uf;
-     </script>
+    </script>
+
 </body>
 </html>
